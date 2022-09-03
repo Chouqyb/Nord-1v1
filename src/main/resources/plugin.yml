@@ -1,0 +1,5 @@
+name: NordDuels
+version: '${version}'
+main: net.nordmc.duels.NordDuels
+authors: [ Mqzen ]
+description: Stupid duels for fares

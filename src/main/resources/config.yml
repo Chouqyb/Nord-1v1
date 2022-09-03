@@ -1,0 +1,11 @@
+fallback-server: "hub"
+mysql:
+  host: "localhost"
+  username: "root"
+  password: "sex"
+  database: "db"
+
+locations:
+  #first-spawn:
+  #second-spawn:
+  #lobby:
