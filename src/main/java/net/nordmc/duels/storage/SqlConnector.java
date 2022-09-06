@@ -51,9 +51,11 @@ public class SqlConnector {
 
 	public void updateData(UUID uuid) {
 		PlayerData data = NordDuels.getInstance().getDataManager().getData(uuid);
-		if(data == null)return;
-		exec((conn) -> conn.createQuery("UPDATE " + tableName + " SET WINS=:wins, LOSES=:loses, KILLS=:kills, DEATHS=:deaths WHERE UUID=:uuid AND NAME=:name")
-						.addParameter("name", data.getName())
+		if(data == null){
+			System.out.println("DATA IN MEMORY IS NULL");
+			return;
+		}
+		exec((conn) -> conn.createQuery("UPDATE " + tableName + " SET WINS=:wins, LOSES=:loses, KILLS=:kills, DEATHS=:deaths WHERE UUID=:uuid")
 						.addParameter("uuid", uuid.toString())
 						.addParameter("wins", data.getWins())
 						.addParameter("loses", data.getLoses())

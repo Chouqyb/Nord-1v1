@@ -6,9 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public final class WaitingTask extends BukkitRunnable {
 
@@ -27,7 +25,7 @@ public final class WaitingTask extends BukkitRunnable {
 			if(onlinePlayers.isEmpty()) return;
 
 			if(onlinePlayers.size() == 2) {
-				new TeleportationStartTask(onlinePlayers).runTaskTimer(NordDuels.getInstance(),1L,20L);
+				new TeleportationStartTask().runTaskTimer(NordDuels.getInstance(),1L,20L);
 				this.cancel();
 				return;
 			}
@@ -45,36 +43,37 @@ public final class WaitingTask extends BukkitRunnable {
 
 		private int lastCounts = 3;
 
-		private final List<Player> online = new ArrayList<>();
-
-		private TeleportationStartTask(Collection<? extends Player> online) {
-
-			int c = 0;
-			for(Player player : online) {
-				if(c > 2)break;
-				this.online.add(player);
-				c++;
-			}
-
+		private TeleportationStartTask() {
 		}
 
 
 		@Override
 		public void run() {
 
-			Player first = online.get(0);
-			Player second = online.get(1);
-
 			if(lastCounts < 1) {
-				NordDuels.getInstance().startNewDuelRound(first, second);
+
+				if(Bukkit.getOnlinePlayers().size() < 2) {
+
+					this.cancel();
+					int diff = 2-Bukkit.getOnlinePlayers().size();
+					MessagingUtility.notifyAll("&cNo Enough players, waiting for " + diff + "more players to join...");
+					return;
+				}
+				Player[] players = new Player[2];
+				int i = 0;
+				for(Player player : Bukkit.getOnlinePlayers()) {
+					players[i] = player;
+					i++;
+				}
+				NordDuels.getInstance().startNewDuelRound(players[0], players[1]);
 				this.cancel();
 				return;
 			}else {
-				first.playSound(first.getLocation(), Sound.NOTE_STICKS, 1.0f, 1.0f);
-				second.playSound(second.getLocation(), Sound.NOTE_STICKS, 1.0f, 1.0f);
 
-				MessagingUtility.notify(first, "&aTeleporting you in " + lastCounts);
-				MessagingUtility.notify(second, "&aTeleporting you in " + lastCounts);
+				Bukkit.getOnlinePlayers().forEach(p -> {
+					p.playSound(p.getLocation(), Sound.NOTE_STICKS, 1.0f, 1.0f);
+					MessagingUtility.notify(p, "&aStarting in " + lastCounts);
+				});
 			}
 			lastCounts--;
 		}

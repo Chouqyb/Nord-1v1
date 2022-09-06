@@ -8,14 +8,16 @@ import net.nordmc.duels.utils.MessagingUtility;
 import net.nordmc.duels.utils.Translator;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerMoveEvent;
 
@@ -47,16 +49,26 @@ public final class DuelListener implements Listener {
 
 		PlayerID killer = currentDuel.getOtherPlayer(PlayerID.of(victim.getName(), victim.getUniqueId()));
 
-		if(killer == null)return;
+		if(killer == null) {
+			return;
+		}
+
+
+		Player killerPlayer = Bukkit.getPlayer(killer.getUuid());
 
 		NordDuels.getInstance().getDataManager().updateData(victim.getUniqueId(), (vd)-> {
-			vd.setLastKiller(killer);
-			Player onlineKiller = Bukkit.getPlayer(killer.getUuid());
+			vd.incrementDeaths();
 
-			if(onlineKiller != null) {
-				vd.setLastKillerHealth(onlineKiller.getHealth());
+			vd.setLastKiller(killer);
+
+			if(killerPlayer != null) {
+				vd.setLastKillerHealth(killerPlayer.getHealth());
 			}
 		});
+
+		if(killerPlayer != null) {
+			killerPlayer.setHealth(20D);
+		}
 
 		PlayerData data = NordDuels.getInstance().getDataManager().getData(victim.getUniqueId());
 		assert data != null;
@@ -113,5 +125,50 @@ public final class DuelListener implements Listener {
 		Vector current = projectile.getVelocity();
 		projectile.setVelocity(current.multiply(1.4));
 	}*/
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onBlockBreak(BlockBreakEvent e) {
+		Player player = e.getPlayer();
+		if(player.isOp())return;
 
+		if(e.getBlock().getType() != Material.FIRE) {
+			e.setCancelled(true);
+			MessagingUtility.notify(player, "&cYou cannot do that while being in a duel !");
+		}
+
+	}
+
+
+	@EventHandler
+	public void onBlockPlace(BlockPlaceEvent e) {
+		Block block = e.getBlock();
+		if(block.getType() == Material.FIRE) {
+			Bukkit.getScheduler().runTaskLater(NordDuels.getInstance(),()-> block.setType(Material.AIR), 10*20L);
+		}
+	}
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onBlockSpread(BlockFromToEvent e) {
+		if(e.getBlock().getType() == Material.FIRE || e.getToBlock().getType() == Material.FIRE) {
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onBlockForm(BlockFormEvent e) {
+		if(e.getBlock().getType() == Material.FIRE || e.getNewState().getType() == Material.FIRE) {
+			e.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void onBlockBurnEvent(BlockBurnEvent e) {
+		e.setCancelled(true);
+	}
+	@EventHandler
+	public void onBlockIgnite(BlockIgniteEvent igniteEvent) {
+		Block ignitingBlock = igniteEvent.getIgnitingBlock();
+		if(ignitingBlock == null)return;
+		if(ignitingBlock.getType().name().contains("WOOD")) {
+			igniteEvent.setCancelled(true);
+		}
+	}
 }

@@ -31,6 +31,8 @@ public final class PlayerData {
 	private @Getter @Nullable @Setter PlayerID lastKiller;
 	private @Getter @Setter double lastKillerHealth;
 	private int wins, loses, kills, deaths;
+
+	@EqualsAndHashCode.Exclude
 	private @NonNull PlayerStatus status = PlayerStatus.WAITING;
 
 	public void incrementWins() {
@@ -42,11 +44,11 @@ public final class PlayerData {
 	}
 
 	public void incrementKills() {
-		setKills(kills);
+		setKills(kills+1);
 	}
 
 	public void incrementDeaths() {
-		setDeaths(deaths);
+		setDeaths(deaths+1);
 	}
 
 	public enum PlayerStatus {

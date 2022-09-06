@@ -183,19 +183,23 @@ public final class Duel {
 		NordDuels.getInstance().getDataManager()
 						.updateData(player.getUuid(), PlayerData::incrementKills);
 
-		NordDuels.getInstance().getDataManager()
-						.updateData(loser.getUniqueId(), PlayerData::incrementKills);
 
 		NordDuels.getInstance().startNewDuelRound(this);
 	}
 
 	public void giveDuelWin(Player winner, Player loser) {
-		NordDuels.getInstance().getDataManager().updateData(winner.getUniqueId(),(wData)-> wData.setStatus(PlayerData.PlayerStatus.DUEL_END));
+		NordDuels.getInstance().getDataManager().updateData(winner.getUniqueId(),(wData)->  {
+			wData.incrementWins();
+			wData.setStatus(PlayerData.PlayerStatus.DUEL_END);
+		});
 
 		Objects.requireNonNull(winner, "Winner cannot be null");
 
 		if(loser != null && loser.isOnline()) {
-			NordDuels.getInstance().getDataManager().updateData(loser.getUniqueId(),(lData)-> lData.setStatus(PlayerData.PlayerStatus.DUEL_END));
+			NordDuels.getInstance().getDataManager().updateData(loser.getUniqueId(),(lData)->  {
+				lData.incrementLoses();
+				lData.setStatus(PlayerData.PlayerStatus.DUEL_END);
+			});
 
 			loser.setHealth(20D);
 			loser.setFoodLevel(20);
@@ -222,6 +226,8 @@ public final class Duel {
 			int loserRoundsWon = roundsWon.get(loserID.getUuid());
 			MessagingUtility.notifyTitle(winner,"&2&lVICTORY !","&aYou won &9" + winnerRoundsWon + "&8-&c" + loserRoundsWon,30,40, 30);
 		}
+
+		//UPDATING STATS
 
 		Bukkit.getScheduler().runTaskLater(NordDuels.getInstance(),
 						()-> NordDuels.getInstance().reset(), 100L); //5 seconds delayed task

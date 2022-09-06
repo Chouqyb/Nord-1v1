@@ -40,10 +40,10 @@ public final class BoardTask extends BukkitRunnable {
 			content.add(Translator.color("&7&l&m+-----------------+"));
 			if(data.getStatus() == PlayerData.PlayerStatus.WAITING) {
 
-				content.addAll(Arrays.asList(Translator.color("&3&l┃ &b&lWins: " + data.getWins()),
-								Translator.color("&3&l┃ &b&lLoses: " + data.getLoses()),
-								Translator.color("&3&l┃ &b&lKills: " + data.getKills()),
-								Translator.color("&3&l┃ &b&lDeaths: " + data.getDeaths())));
+				content.addAll(Arrays.asList(Translator.color("&3&l┃ &bWins: &f" + data.getWins()),
+								Translator.color("&3&l┃ &bLoses: &f" + data.getLoses()),
+								Translator.color("&3&l┃ &bKills: &f" + data.getKills()),
+								Translator.color("&3&l┃ &bDeaths: &f" + data.getDeaths())));
 
 			}else {
 				Duel currentDuel = NordDuels.getInstance().getCurrentDuel();

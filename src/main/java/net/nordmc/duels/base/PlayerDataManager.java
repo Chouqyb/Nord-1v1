@@ -37,14 +37,20 @@ public final class PlayerDataManager {
 						});
 	}
 	public void updateData(UUID uuid, Consumer<PlayerData> consumer) {
+
 		data.computeIfPresent(uuid, (k, v)-> {
+			final PlayerData old = new PlayerData(v.getUuid(), v.getName(), v.getWins(), v.getLoses(), v.getKills(), v.getDeaths());
 			consumer.accept(v);
+
+			if(!old.equals(v)) {
+				CompletableFuture.runAsync(()->
+								NordDuels.getInstance().getConnector().updateData(uuid));
+			}
 
 			return v;
 		});
 
-		CompletableFuture.runAsync(()->
-						NordDuels.getInstance().getConnector().updateData(uuid));
+
 	}
 
 	public void removeData(Player player) {
@@ -54,6 +60,10 @@ public final class PlayerDataManager {
 			PlayerID other = duel.getOtherPlayer(PlayerID.of(player.getName(), player.getUniqueId()));
 			if(other != null) {
 				Player otherPlayer = Bukkit.getPlayer(other.getUuid());
+
+				NordDuels.getInstance().getDataManager()
+								.updateData(player.getUniqueId(), PlayerData::incrementLoses);
+
 				duel.giveDuelWin(otherPlayer, player);
 			}
 		}

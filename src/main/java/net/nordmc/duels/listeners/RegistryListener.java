@@ -5,6 +5,7 @@ import net.nordmc.duels.NordDuels;
 import net.nordmc.duels.utils.ItemBuilder;
 import net.nordmc.duels.utils.MessagingUtility;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -30,6 +31,12 @@ public class RegistryListener implements Listener {
 
 	@EventHandler
 	public void onLogin(AsyncPlayerPreLoginEvent e) {
+
+		if(Bukkit.getOnlinePlayers().size() == 2) {
+			e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_FULL, ChatColor.RED + "The server is full, try another one");
+			return;
+		}
+
 		UUID uuid = e.getUniqueId();
 		NordDuels.getInstance().getDataManager()
 						.insertNewData(uuid, e.getName());

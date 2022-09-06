@@ -65,10 +65,10 @@ public final class NordDuels extends JavaPlugin {
 		this.registerListeners();
 
 		waitingTask = new WaitingTask();
-		waitingTask.runTaskTimer(NordDuels.getInstance(), 1L, 20L);
+		waitingTask.runTaskTimer(NordDuels.getInstance(),
+						1L, 20L);
 
 		BoardTask.start();
-
 	}
 
 	@Override
